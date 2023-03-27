@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -14,7 +15,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -41,17 +45,27 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginOutLineTextFields(modifier: Modifier = Modifier) {
+fun LoginOutLineTextFields(
+    onLoginClick: (String, String) -> Unit
+) {
     var emailText by rememberSaveable { mutableStateOf("") }
     var passwordText by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    Column(modifier = modifier) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val focusManager = LocalFocusManager.current
         OutlinedTextField(
             value = emailText,
             onValueChange = { emailText = it },
             label = { Text(text = "Email") },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardActions = KeyboardActions {
+                focusManager.moveFocus(FocusDirection.Next)
+            }
         )
         OutlinedTextField(
             value = passwordText,
@@ -61,6 +75,9 @@ fun LoginOutLineTextFields(modifier: Modifier = Modifier) {
             visualTransformation =
             if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardActions = KeyboardActions {
+                focusManager.clearFocus()
+            },
             trailingIcon = {
                 val iconImage = if (passwordVisible)
                     Icons.Filled.Visibility
@@ -78,34 +95,12 @@ fun LoginOutLineTextFields(modifier: Modifier = Modifier) {
                 }
             }
         )
-    }
-}
-
-@Composable
-fun PositiveNegativeRowButton(
-    positiveText: String = "Yes",
-    negativeText: String = "No",
-    positiveClicked: () -> Unit,
-    negativeClicked: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-
-    ) {
-        OutlinedButton(
-            onClick = { negativeClicked },
-            Modifier
-                .weight(1f)
-                .padding(8.dp)
+        Button(
+            onClick = { onLoginClick(emailText, passwordText) }, modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
         ) {
-            Text(text = negativeText)
-        }
-        Button(onClick = { positiveClicked }, Modifier.weight(1f)) {
-            Text(text = positiveText)
+            Text(text = "Login")
         }
     }
 }
@@ -129,16 +124,17 @@ fun LoginPage() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LoginOutLineTextFields()
-            PositiveNegativeRowButton(
-                positiveClicked = { /*TODO*/ },
-                positiveText = "Login",
-                negativeText = "Sign Up"
-            ) {
 
-            }
+            LoginOutLineTextFields(onLoginClick = { emailText, passwordText ->
+                onLogin(emailText, passwordText)
+            })
         }
     }
+}
+
+private fun onLogin(emailText: String, passwordText: String) {
+    println("Email = $emailText")
+    println("Password = $passwordText")
 }
 
 @Preview(showBackground = true)
