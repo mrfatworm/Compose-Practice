@@ -16,7 +16,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -58,6 +57,7 @@ fun LoginOutLineTextFields(
     ) {
         val focusManager = LocalFocusManager.current
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth().padding(24.dp, 0.dp, 24.dp, 0.dp),
             value = emailText,
             onValueChange = { emailText = it },
             label = { Text(text = "Email") },
@@ -68,6 +68,7 @@ fun LoginOutLineTextFields(
             }
         )
         OutlinedTextField(
+            modifier = Modifier.fillMaxWidth().padding(24.dp, 0.dp, 24.dp, 0.dp),
             value = passwordText,
             onValueChange = { passwordText = it },
             label = { Text(text = "Password") },
@@ -112,17 +113,18 @@ fun LoginPage() {
             .fillMaxSize()
             .padding(32.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val painterResource = painterResource(id = R.drawable.logo_pd)
         Image(
             painter = painterResource,
             contentDescription = "Logo",
-            modifier = Modifier.fillMaxWidth(0.4f)
+            modifier = Modifier.fillMaxWidth(0.4f).weight(1f)
         )
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(2f)
         ) {
 
             LoginOutLineTextFields(onLoginClick = { emailText, passwordText ->
