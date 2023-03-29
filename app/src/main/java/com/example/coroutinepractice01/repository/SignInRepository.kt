@@ -1,4 +1,4 @@
-package com.example.coroutinepractice01
+package com.example.coroutinepractice01.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +21,5 @@ class SignInRepository (private val network: MainNetwork) {
             throw SignInError("Sign in fail", error)
         }
     }
-
-class SignInError(message: String, cause: Throwable): Throwable(message, cause)
 }
+class SignInError(message: String, cause: Throwable): Throwable(message, cause)
