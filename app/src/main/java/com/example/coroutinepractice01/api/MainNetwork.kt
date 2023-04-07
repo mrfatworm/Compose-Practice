@@ -1,6 +1,7 @@
 package com.example.coroutinepractice01.api
 
-import com.example.coroutinepractice01.data.SignInToken
+import com.example.coroutinepractice01.data.LoginPara
+import com.example.coroutinepractice01.data.LoginState
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -19,5 +20,5 @@ fun getNetworkService() = service
 
 interface MainNetwork {
     @POST("user/signin")
-    suspend fun signIn(@Body email: String, @Body password: String): SignInToken
+    suspend fun signIn(@Body loginPara: LoginPara): LoginState
 }
