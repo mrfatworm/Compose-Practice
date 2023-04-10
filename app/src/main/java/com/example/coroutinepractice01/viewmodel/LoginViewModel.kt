@@ -6,6 +6,7 @@ import com.example.coroutinepractice01.data.LoginUiState
 import com.example.coroutinepractice01.repository.LoginRepository
 import com.example.coroutinepractice01.repository.NetworkError
 import com.example.coroutinepractice01.util.singleArgViewModelFactory
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +28,14 @@ class LoginViewModel(private val repository: LoginRepository) : ViewModel() {
             currentState.copy(isLogin = loginResult.api_key.isNotEmpty())
         }
         getUserProfile(loginResult.api_key)
+    }
+    fun snackBarShown() {
+        viewModelScope.launch {
+            delay(5_000)
+            _uiState.update { currentState ->
+                currentState.copy(snackBarText = "")
+            }
+        }
     }
 
     private fun getUserProfile(token: String) = launchDataLoad {

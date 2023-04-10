@@ -1,5 +1,7 @@
 package com.example.coroutinepractice01.compose
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -14,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -24,47 +27,71 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.coroutinepractice01.R
 import com.example.coroutinepractice01.viewmodel.LoginViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Preview(showBackground = true)
 @Composable
 fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewModel()) {
     val loginUiState by viewModel.uiState.collectAsState()
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        val painterResource = painterResource(id = R.drawable.logo_pd)
-        Image(
-            painter = painterResource,
-            contentDescription = "Logo",
-            modifier = modifier
-                .fillMaxWidth(0.4f)
-                .weight(1f)
-        )
-        Text(
-            text = if (loginUiState.isLoading) "Processing..." else "Welcome ${loginUiState.userName}",
-            modifier.weight(0.2f)
-        )
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.weight(2f)
-        ) {
+    val scaffoldState: ScaffoldState = rememberScaffoldState()
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val activity = LocalContext.current as? Activity
 
-            LoginOutLineTextFields(onLoginClick = { emailText, passwordText ->
-                viewModel.onSignInClick(emailText, passwordText)
-            })
+    Scaffold(scaffoldState = scaffoldState) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            val painterResource = painterResource(id = R.drawable.logo_pd)
+            Image(
+                painter = painterResource,
+                contentDescription = "Logo",
+                modifier = modifier
+                    .fillMaxWidth(0.4f)
+                    .weight(1f)
+            )
+            Text(
+                text = if (loginUiState.userName.isNotEmpty()) "Welcome ${loginUiState.userName}" else "Not Login",
+                modifier.weight(0.2f)
+            )
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier.weight(2f)
+            ) {
+
+                LoginOutLineTextFields(onLoginClick = { emailText, passwordText ->
+                    viewModel.onSignInClick(emailText, passwordText)
+                }, isLoading = loginUiState.isLoading)
+            }
+        }
+        if (loginUiState.snackBarText.isNotEmpty()) {
+            coroutineScope.launch {
+                val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                    message = loginUiState.snackBarText,
+                    actionLabel = "Close App"
+                )
+                when (snackbarResult) {
+                    SnackbarResult.Dismissed -> viewModel.snackBarShown()
+                    SnackbarResult.ActionPerformed -> activity?.finish()
+                }
+            }
         }
     }
+
+
 }
 
 @Composable
 fun LoginOutLineTextFields(
     modifier: Modifier = Modifier,
-    onLoginClick: (String, String) -> Unit
+    onLoginClick: (String, String) -> Unit,
+    isLoading: Boolean = false
 ) {
     var emailText by rememberSaveable { mutableStateOf("") }
     var passwordText by rememberSaveable { mutableStateOf("") }
@@ -120,11 +147,13 @@ fun LoginOutLineTextFields(
             }
         )
         Button(
-            onClick = { onLoginClick(emailText, passwordText) }, modifier = modifier
+            onClick = { onLoginClick(emailText, passwordText) },
+            enabled = !isLoading,
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(24.dp)
         ) {
-            Text(text = "Login")
+            Text(text = if (isLoading) "Processing" else "Login")
         }
     }
 }

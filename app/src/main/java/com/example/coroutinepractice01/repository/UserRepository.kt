@@ -15,10 +15,8 @@ class LoginRepository (private val network: MainNetwork) {
             val result = withTimeout(networkTimeout) {
                 network.signIn(emailText, passwordText)
             }
-            Log.v("Lance", "Result = ${result.api_key}")
             return  result
         } catch (error: Throwable){
-            Log.v("Lance", "Sign in fail $error")
             throw NetworkError("Sign in fail", error)
         }
     }
@@ -28,10 +26,8 @@ class LoginRepository (private val network: MainNetwork) {
             val result = withTimeout(networkTimeout) {
                 network.getUserProfile(token)
             }
-            Log.v("Lance", "Result = ${result.given_name}")
             return result
         } catch (error: Throwable) {
-            Log.v("Lance", "Get user data fail $error")
             throw NetworkError("Get user data fail", error)
         }
     }
