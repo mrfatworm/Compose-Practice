@@ -1,11 +1,11 @@
 package com.example.coroutinepractice01.api
 
-import com.example.coroutinepractice01.data.LoginPara
-import com.example.coroutinepractice01.data.LoginState
+import com.example.coroutinepractice01.data.LoginResult
+import com.example.coroutinepractice01.data.UserProfileResult
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 private val service: MainNetwork by lazy {
     val retrofit = Retrofit.Builder()
@@ -20,5 +20,11 @@ fun getNetworkService() = service
 
 interface MainNetwork {
     @POST("user/signin")
-    suspend fun signIn(@Body loginPara: LoginPara): LoginState
+    suspend fun signIn(
+        @Query("email") email: String,
+        @Query("password") password: String
+    ): LoginResult
+
+    @POST("user/profile")
+    suspend fun getUserProfile(@Query("api_key") apiKey: String): UserProfileResult
 }

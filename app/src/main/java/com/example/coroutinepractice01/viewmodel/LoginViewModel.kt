@@ -2,9 +2,9 @@ package com.example.coroutinepractice01.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.coroutinepractice01.data.LoginState
+import com.example.coroutinepractice01.data.LoginUiState
 import com.example.coroutinepractice01.repository.LoginRepository
-import com.example.coroutinepractice01.repository.SignInError
+import com.example.coroutinepractice01.repository.NetworkError
 import com.example.coroutinepractice01.util.singleArgViewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,13 +18,21 @@ class LoginViewModel(private val repository: LoginRepository) : ViewModel() {
         val FACTORY = singleArgViewModelFactory(::LoginViewModel)
     }
 
-    private val _uiState = MutableStateFlow(LoginState())
-    val uiState : StateFlow<LoginState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(LoginUiState())
+    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     fun onSignInClick(emailText: String, passwordText: String) = launchDataLoad {
-        val apiKey = repository.fetchUserToken(emailText, passwordText)
+        val loginResult = repository.fetchUserToken(emailText, passwordText)
         _uiState.update { currentState ->
-            currentState.copy(api_key = apiKey)
+            currentState.copy(isLogin = loginResult.api_key.isNotEmpty())
+        }
+        getUserProfile(loginResult.api_key)
+    }
+
+    private fun getUserProfile(token: String) = launchDataLoad {
+        val userProfileResult = repository.fetchUserProfile(token)
+        _uiState.update { currentState ->
+            currentState.copy(userName = userProfileResult.given_name + " " + userProfileResult.family_name)
         }
     }
 
@@ -36,10 +44,10 @@ class LoginViewModel(private val repository: LoginRepository) : ViewModel() {
                     currentState.copy(isLoading = true)
                 }
                 block()
-            } catch (error: SignInError) {
+            } catch (error: NetworkError) {
                 _uiState.update { currentState ->
-                currentState.copy(snackBarText = error.message.toString())
-            }
+                    currentState.copy(snackBarText = error.message.toString())
+                }
             } finally {
                 _uiState.update { currentState ->
                     currentState.copy(isLoading = false)

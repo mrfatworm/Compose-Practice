@@ -44,7 +44,10 @@ fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewM
                 .fillMaxWidth(0.4f)
                 .weight(1f)
         )
-        Text(text = loginUiState.api_key ?: "No Data", modifier.weight(0.2f))
+        Text(
+            text = if (loginUiState.isLoading) "Processing..." else "Welcome ${loginUiState.userName}",
+            modifier.weight(0.2f)
+        )
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
