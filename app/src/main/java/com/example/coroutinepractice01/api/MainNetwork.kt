@@ -1,5 +1,6 @@
 package com.example.coroutinepractice01.api
 
+import com.example.coroutinepractice01.BuildConfig
 import com.example.coroutinepractice01.data.LoginResult
 import com.example.coroutinepractice01.data.UserProfileResult
 import retrofit2.Retrofit
@@ -9,7 +10,7 @@ import retrofit2.http.Query
 
 private val service: MainNetwork by lazy {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://bctest.westeurope.cloudapp.azure.com/brandcloud-dev/api/")
+        .baseUrl(BuildConfig.SERVER_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

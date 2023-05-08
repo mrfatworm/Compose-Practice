@@ -1,6 +1,5 @@
 package com.example.coroutinepractice01.repository
 
-import android.util.Log
 import com.example.coroutinepractice01.api.MainNetwork
 import com.example.coroutinepractice01.data.LoginResult
 import com.example.coroutinepractice01.data.UserProfileResult

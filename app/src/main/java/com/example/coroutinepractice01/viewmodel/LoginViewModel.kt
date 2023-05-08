@@ -21,14 +21,6 @@ class LoginViewModel(private val repository: LoginRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-    fun onSignInClick(emailText: String, passwordText: String) = launchDataLoad {
-        val loginResult = repository.fetchUserToken(emailText, passwordText)
-        _uiState.update { currentState ->
-            currentState.copy(isLogin = loginResult.api_key.isNotEmpty())
-        }
-        getUserProfile(loginResult.api_key)
-    }
     fun snackBarShown() {
         viewModelScope.launch {
             delay(5_000)
@@ -36,6 +28,14 @@ class LoginViewModel(private val repository: LoginRepository) : ViewModel() {
                 currentState.copy(snackBarText = "")
             }
         }
+    }
+
+    fun onSignInClick(emailText: String, passwordText: String) = launchDataLoad {
+        val loginResult = repository.fetchUserToken(emailText, passwordText)
+        _uiState.update { currentState ->
+            currentState.copy(isLogin = loginResult.api_key.isNotEmpty())
+        }
+        getUserProfile(loginResult.api_key)
     }
 
     private fun getUserProfile(token: String) = launchDataLoad {
