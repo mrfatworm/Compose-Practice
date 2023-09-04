@@ -1,9 +1,12 @@
 package com.example.coroutinepractice01.repository
 
 import com.example.coroutinepractice01.api.MainNetwork
+import com.example.coroutinepractice01.data.ErrorResult
 import com.example.coroutinepractice01.data.LoginResult
 import com.example.coroutinepractice01.data.UserProfileResult
+import com.google.gson.Gson
 import kotlinx.coroutines.withTimeout
+import retrofit2.HttpException
 
 class LoginRepository (private val network: MainNetwork) {
 
@@ -16,7 +19,13 @@ class LoginRepository (private val network: MainNetwork) {
             }
             return  result
         } catch (error: Throwable){
-            throw NetworkError("Sign in fail", error)
+            if (error is HttpException){
+                val errorBody = error.response()?.errorBody()?.string()
+                val errorResult: ErrorResult = Gson().fromJson(errorBody, ErrorResult::class.java)
+                throw NetworkError(errorResult.error_name)
+            } else {
+                throw NetworkError("Unknown Error")
+            }
         }
     }
 
@@ -26,9 +35,15 @@ class LoginRepository (private val network: MainNetwork) {
                 network.getUserProfile(token)
             }
             return result
-        } catch (error: Throwable) {
-            throw NetworkError("Get user data fail", error)
+        }  catch (error: Throwable){
+            if (error is HttpException){
+                val errorBody = error.response()?.errorBody()?.string()
+                val errorResult: ErrorResult = Gson().fromJson(errorBody, ErrorResult::class.java)
+                throw NetworkError(errorResult.error_name)
+            } else {
+                throw NetworkError("Unknown Error")
+            }
         }
     }
 }
-class NetworkError(message: String, cause: Throwable): Throwable(message, cause)
+class NetworkError(message: String): Throwable(message)

@@ -22,11 +22,8 @@ class LoginViewModel(private val repository: LoginRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
     fun snackBarShown() {
-        viewModelScope.launch {
-            delay(5_000)
-            _uiState.update { currentState ->
-                currentState.copy(snackBarText = "")
-            }
+        _uiState.update { currentState ->
+            currentState.copy(snackBarText = "")
         }
     }
 

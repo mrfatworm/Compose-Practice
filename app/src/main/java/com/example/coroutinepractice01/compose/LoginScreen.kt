@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,8 +87,8 @@ fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewM
                 }, isLoading = loginUiState.isLoading)
             }
         }
-        if (loginUiState.snackBarText.isNotEmpty()) {
-            coroutineScope.launch {
+        loginUiState.snackBarText.firstOrNull()?.let { snackBarText ->
+            LaunchedEffect(snackBarText) {
                 val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                     message = loginUiState.snackBarText,
                     actionLabel = "Close App"
